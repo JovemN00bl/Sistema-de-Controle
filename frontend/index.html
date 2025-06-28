@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Integrado de Gestão</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Sistema Integrado de Gestão</h1>
+        <nav>
+            <button id="btnEstoque">Gestão de Estoque</button>
+            <button id="btnVendas">Gestão de Vendas</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="estoqueSection" class="active-section">
+            <h2>Módulo de Estoque</h2>
+            <button id="openAddProductModal">Adicionar Novo Produto</button>
+            <div id="addProductModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h3>Novo Produto</h3>
+                    <form id="productForm">
+                        <label for="productName">Nome:</label>
+                        <input type="text" id="productName" required><br>
+                        <label for="productSku">SKU:</label>
+                        <input type="text" id="productSku"><br>
+                        <label for="productDescription">Descrição:</label>
+                        <textarea id="productDescription"></textarea><br>
+                        <label for="productCost">Preço Custo:</label>
+                        <input type="number" step="0.01" id="productCost" required><br>
+                        <label for="productSale">Preço Venda:</label>
+                        <input type="number" step="0.01" id="productSale" required><br>
+                        <label for="productUnit">Unidade:</label>
+                        <input type="text" id="productUnit" value="UN"><br>
+                        <button type="submit">Salvar Produto</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="addMovementModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h3>Registrar Movimento de Estoque</h3>
+                    <form id="movementForm">
+                        <label for="movementProduct">Produto:</label>
+                        <select id="movementProduct" required></select><br>
+                        <label for="movementType">Tipo:</label>
+                        <select id="movementType" required>
+                            <option value="ENTRADA">Entrada</option>
+                            <option value="SAIDA">Saída</option>
+                        </select><br>
+                        <label for="movementQuantity">Quantidade:</label>
+                        <input type="number" id="movementQuantity" required min="1"><br>
+                        <label for="movementObs">Observação:</label>
+                        <textarea id="movementObs"></textarea><br>
+                        <button type="submit">Registrar Movimento</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3>Produtos em Estoque</h3>
+            <div id="productList">
+                </div>
+        </section>
+
+        <section id="vendasSection" class="hidden-section">
+            <h2>Módulo de Vendas</h2>
+            <button id="openAddClientModal">Adicionar Novo Cliente</button>
+            <div id="addClientModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h3>Novo Cliente</h3>
+                    <form id="clientForm">
+                        <label for="clientName">Nome:</label>
+                        <input type="text" id="clientName" required><br>
+                        <label for="clientCpfCnpj">CPF/CNPJ:</label>
+                        <input type="text" id="clientCpfCnpj"><br>
+                        <label for="clientEmail">Email:</label>
+                        <input type="email" id="clientEmail"><br>
+                        <label for="clientPhone">Telefone:</label>
+                        <input type="text" id="clientPhone"><br>
+                        <label for="clientAddress">Endereço:</label>
+                        <textarea id="clientAddress"></textarea><br>
+                        <button type="submit">Salvar Cliente</button>
+                    </form>
+                </div>
+            </div>
+
+            <button id="openAddOrderModal">Criar Novo Pedido</button>
+            <div id="addOrderModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h3>Novo Pedido</h3>
+                    <form id="orderForm">
+                        <label for="orderClient">Cliente:</label>
+                        <select id="orderClient" required></select><br>
+
+                        <h4>Itens do Pedido:</h4>
+                        <div id="orderItemsContainer">
+                            <div class="order-item">
+                                <label for="itemProduct0">Produto:</label>
+                                <select class="item-product" id="itemProduct0" required></select>
+                                <label for="itemQuantity0">Quantidade:</label>
+                                <input type="number" class="item-quantity" id="itemQuantity0" required min="1">
+                                <button type="button" class="remove-item-btn">Remover</button>
+                            </div>
+                        </div>
+                        <button type="button" id="addItemToOrder">Adicionar Item</button><br>
+                        <button type="submit">Finalizar Pedido</button>
+                    </form>
+                </div>
+            </div>
+
+            <h3>Clientes Cadastrados</h3>
+            <div id="clientList">
+                </div>
+
+            <h3>Pedidos Recentes</h3>
+            <div id="orderList">
+                </div>
+        </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/estoque.js"></script>
+    <script src="js/vendas.js"></script>
+    <script>
+        // Lógica para alternar seções e carregar dados iniciais
+        document.addEventListener('DOMContentLoaded', () => {
+            const estoqueSection = document.getElementById('estoqueSection');
+            const vendasSection = document.getElementById('vendasSection');
+            const btnEstoque = document.getElementById('btnEstoque');
+            const btnVendas = document.getElementById('btnVendas');
+
+            function showSection(sectionId) {
+                estoqueSection.classList.remove('active-section');
+                vendasSection.classList.remove('active-section');
+                estoqueSection.classList.add('hidden-section');
+                vendasSection.classList.add('hidden-section');
+
+                document.getElementById(sectionId).classList.add('active-section');
+                document.getElementById(sectionId).classList.remove('hidden-section');
+            }
+
+            btnEstoque.addEventListener('click', () => {
+                showSection('estoqueSection');
+                loadProducts(); // Recarrega os produtos ao mudar para a seção de estoque
+            });
+            btnVendas.addEventListener('click', () => {
+                showSection('vendasSection');
+                loadClients(); // Recarrega clientes ao mudar para a seção de vendas
+                loadOrders(); // Recarrega pedidos ao mudar para a seção de vendas
+            });
+
+            // Inicializa a seção de estoque e carrega os produtos
+            showSection('estoqueSection');
+            loadProducts();
+            loadClients(); // Carrega clientes e produtos para os selects de pedido
+        });
+
+        // Lógica genérica de modais
+        document.querySelectorAll('.modal').forEach(modal => {
+            const closeButton = modal.querySelector('.close-button');
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
